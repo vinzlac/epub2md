@@ -118,7 +118,12 @@ def iter_spine_items(book: epub.EpubBook) -> Iterable[epub.EpubHtml]:
         idref = None
         if isinstance(spine_entry, tuple):
             meta = spine_entry[1] if len(spine_entry) > 1 else {}
-            idref = meta.get("idref")
+            # Handle case where meta might be a string instead of dict
+            if isinstance(meta, dict):
+                idref = meta.get("idref")
+            else:
+                # If meta is a string, treat it as the idref directly
+                idref = str(meta) if meta else None
         else:
             idref = spine_entry
         if idref and idref in idref_to_item:

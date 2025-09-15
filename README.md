@@ -1,41 +1,55 @@
 # epub2md
 
-`epub2md` is a simple yet powerful command‑line tool for converting
-EPUB ebooks into Markdown.  It can generate a single Markdown file or
-break the book into multiple chapter files, extract images (including
-the cover), and maintain the original reading order defined by the
-EPUB spine.
+`epub2md` est un outil en ligne de commande simple mais puissant pour convertir
+des livres électroniques EPUB en Markdown. Il peut générer un fichier Markdown unique
+ou diviser le livre en plusieurs fichiers de chapitres, extraire les images (y compris
+la couverture), et maintenir l'ordre de lecture original défini par la
+structure EPUB.
 
-## Features
+Le projet inclut également `md2epub`, un outil pour convertir des fichiers Markdown
+vers le format EPUB.
 
-- **Single or multi‑file output** – produce one `.md` file or split
-  the output into per‑chapter files with an automatic table of
-  contents (`index.md`).
-- **Image extraction** – copy all images from the EPUB into a
-  dedicated folder and update references in the Markdown.  The book
-  cover is detected automatically and renamed to `cover.ext`.
-- **Cover banner** – optionally insert the cover image at the top of
-  the generated Markdown or index for quick visual context.
-- **Robust spine handling** – respects the EPUB spine to preserve the
-  intended reading order; falls back to sensible defaults if the
-  spine is missing.
-- **Clean Markdown output** – converts HTML to Markdown without
-  wrapping lines and preserves links and images.
-- **Flexible CLI** – configure output paths, prefixes, image
-  directories, and disable features (image extraction, cover banner)
-  via command‑line flags.
+**Bonus** : Le projet démontre un workflow complet de traduction de livres, 
+de l'EPUB anglais original vers une traduction française complète en EPUB.
 
-## Requirements
+## Fonctionnalités
 
-- Python 3.7 or later
-- pip packages: [ebooklib](https://pypi.org/project/ebooklib/),
+### epub2md (EPUB → Markdown)
+- **Sortie unique ou multiple** – génère un fichier `.md` unique ou divise
+  la sortie en fichiers par chapitre avec une table des matières automatique (`index.md`).
+- **Extraction d'images** – copie toutes les images de l'EPUB dans un
+  dossier dédié et met à jour les références dans le Markdown. La couverture
+  du livre est détectée automatiquement et renommée en `cover.ext`.
+- **Bannière de couverture** – insère optionnellement l'image de couverture en haut
+  du Markdown généré ou de l'index pour un contexte visuel rapide.
+- **Gestion robuste de la structure** – respecte la structure EPUB pour préserver
+  l'ordre de lecture prévu ; utilise des valeurs par défaut sensées si la
+  structure est manquante.
+- **Sortie Markdown propre** – convertit HTML en Markdown sans
+  retour à la ligne automatique et préserve les liens et images.
+- **CLI flexible** – configure les chemins de sortie, préfixes, répertoires
+  d'images, et désactive des fonctionnalités via des drapeaux en ligne de commande.
+
+### md2epub (Markdown → EPUB)
+- **Conversion Markdown vers EPUB** – convertit des fichiers Markdown en livres électroniques EPUB.
+- **Support des métadonnées** – lit les métadonnées frontmatter YAML (titre, auteur, description).
+- **Gestion des chapitres** – divise automatiquement le contenu en chapitres basés sur les titres.
+- **Intégration d'images** – gère les images référencées dans le Markdown.
+- **CSS personnalisé** – applique un style CSS pour une lecture agréable.
+- **Table des matières** – génère automatiquement une table des matières navigable.
+
+## Prérequis
+
+- Python 3.7 ou plus récent
+- Packages pip : [ebooklib](https://pypi.org/project/ebooklib/),
   [html2text](https://pypi.org/project/html2text/),
-  [beautifulsoup4](https://pypi.org/project/beautifulsoup4/)
+  [beautifulsoup4](https://pypi.org/project/beautifulsoup4/),
+  [markdown](https://pypi.org/project/markdown/)
 
-Install the dependencies with:
+Installez les dépendances avec :
 
 ```sh
-pip install ebooklib html2text beautifulsoup4
+pip install ebooklib html2text beautifulsoup4 markdown
 ```
 
 ## Installation
@@ -53,12 +67,23 @@ pip install -r requirements.txt  # optional if you create a requirements file
 Alternatively, run the script directly with Python after installing
 the dependencies.
 
-## Usage
+## Utilisation
+
+### epub2md (EPUB → Markdown)
 
 ```sh
 python epub2md.py input.epub [output.md]
 
 python epub2md.py input.epub --split [--outdir OUTDIR]
+```
+
+### md2epub (Markdown → EPUB)
+
+```sh
+python md2epub.py input.md [output.epub]
+
+# Avec des métadonnées personnalisées
+python md2epub.py input.md --title "Mon Livre" --author "Mon Nom" --description "Description du livre"
 ```
 
 ### Single file conversion
@@ -130,12 +155,99 @@ Convert to a Markdown file without extracting any images:
 python epub2md.py alice.epub output.md --no-images
 ```
 
-Split the book into chapters, store everything in `out_md/`, and
-prefix files with `part`:
+Diviser le livre en chapitres, stocker tout dans `out_md/`, et
+préfixer les fichiers avec `part` :
 
 ```sh
 python epub2md.py alice.epub --split --outdir out_md --prefix part
 ```
+
+### Exemples md2epub
+
+Convertir un fichier Markdown simple en EPUB :
+
+```sh
+python md2epub.py mon_livre.md
+# génère mon_livre.epub
+```
+
+Convertir avec des métadonnées personnalisées :
+
+```sh
+python md2epub.py mon_livre.md --title "Le Grand Livre" --author "Jean Dupont" --language "fr"
+```
+
+Utiliser des métadonnées frontmatter YAML dans le Markdown :
+
+```markdown
+---
+title: "Mon Premier Livre"
+author: "Jean Dupont"
+description: "Un livre de test créé avec md2epub"
+---
+
+# Introduction
+
+Contenu du livre...
+```
+
+Puis convertir :
+
+```sh
+python md2epub.py livre_avec_metadata.md
+```
+
+### Exemple complet : Traduction et conversion
+
+Voici un exemple complet de workflow pour traduire un livre et le convertir en EPUB :
+
+```sh
+# 1. Convertir EPUB anglais vers Markdown
+python epub2md.py TheTheoryoftheLeisureClass.epub
+
+# 2. Traduire le fichier Markdown (manuellement ou avec un outil de traduction)
+# Résultat : LaTheorieDeLaClasseDeLoisir.md
+
+# 3. Convertir la traduction française vers EPUB
+python md2epub.py LaTheorieDeLaClasseDeLoisir.md
+# Génère : LaTheorieDeLaClasseDeLoisir.epub
+```
+
+### Options md2epub
+
+| Option | Description |
+|-------|-------------|
+| `--title TITRE` | Titre du livre (remplace celui du frontmatter) |
+| `--author AUTEUR` | Auteur du livre (remplace celui du frontmatter) |
+| `--description DESCRIPTION` | Description du livre (remplace celle du frontmatter) |
+| `--language LANGUE` | Langue du livre (défaut: "fr") |
+
+Les arguments positionnels sont :
+
+| Argument | Description |
+|---------|-------------|
+| `input` | Chemin vers le fichier Markdown d'entrée |
+| `output` | Chemin vers le fichier EPUB de sortie (optionnel, basé sur l'entrée si omis) |
+
+## Fichiers du projet
+
+Ce projet contient :
+
+### Scripts principaux
+- `epub2md.py` - Convertisseur EPUB vers Markdown
+- `md2epub.py` - Convertisseur Markdown vers EPUB
+- `requirements.txt` - Dépendances Python
+
+### Exemple de traduction complète
+- `TheTheoryoftheLeisureClass.epub` - Livre original en anglais (468 KB)
+- `TheTheoryoftheLeisureClass.md` - Version Markdown du livre original (1683 lignes)
+- `LaTheorieDeLaClasseDeLoisir.md` - Traduction française en Markdown (369 lignes)
+- `LaTheorieDeLaClasseDeLoisir.epub` - Version EPUB de la traduction française (247 KB)
+- `images/` - Images extraites du livre original
+
+### Fichiers de test
+- `example.md` - Exemple simple avec métadonnées frontmatter
+- `example.epub` - EPUB généré à partir de l'exemple
 
 ## License
 
