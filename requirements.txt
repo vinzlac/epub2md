@@ -1,0 +1,3 @@
+ebooklib
+html2text
+beautifulsoup4
